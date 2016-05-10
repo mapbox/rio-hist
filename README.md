@@ -44,7 +44,7 @@ Options:
 
 ## Python docs
 
-`rio_hist.match.histogram_match` is the main entry point and operates on a single band. 
+`rio_hist.match.histogram_match` is the main entry point and operates on a single band.
 
 `rio_hist.utils` has some interesting functions that may be useful in other contexts.
 
