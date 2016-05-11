@@ -16,16 +16,43 @@ def make_plot(source, reference, target,
     i2 = raster_to_image(reference)
     i3 = raster_to_image(target)
 
-    f, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3)
+    f, ((ax1, ax2, ax3), (ax4, ax5, ax6), (ax7, ax8, ax9)) = plt.subplots(3, 3)
 
     ax1.imshow(i1)
     ax1.set_title('Source')
+    ax1.set_xticklabels([])
+    ax1.set_yticklabels([])
+
     ax2.imshow(i2)
     ax2.set_title('Reference')
+    ax2.set_xticklabels([])
+    ax2.set_yticklabels([])
+
     ax3.imshow(i3)
     ax3.set_title('Matched to ' + ', '.join(str(b) for _, b in bands))
-    axes = (ax4, ax5, ax6)
+    ax3.set_xticklabels([])
+    ax3.set_yticklabels([])
 
+    axes = (ax4, ax5, ax6)
+    imgs = (i1, i2, i3)
+    titles = ('Source', 'Reference', 'Output')
+    bins = 32
+    for i, axis in enumerate(axes):
+        im = imgs[i]
+        title = titles[i]
+        red, _ = np.histogram(im[:, :, 0].ravel(), bins, [0, 1])
+        green, _ = np.histogram(im[:, :, 1].ravel(), bins, [0, 1])
+        blue, _ = np.histogram(im[:, :, 2].ravel(), bins, [0, 1])
+        for color, name in ((red, "red"), (green, "green"), (blue, "blue")):
+            norm = color / im.size
+            # axis.plot(norm, color=name, lw=2)
+            axis.fill_between([float(x) / bins for x in range(bins)],
+                              norm, facecolor=name, alpha=0.15)
+        axis.set_title("{} RGB histogram".format(title))
+        # axis.set_yticklabels([])
+        axis.grid('on')
+
+    axes = (ax7, ax8, ax9)
     for b, band in bands:
         ax = axes[b]
         source_band = src_arr[b]
@@ -40,11 +67,13 @@ def make_plot(source, reference, target,
         rcdf = np.cumsum(rc).astype(np.float64) / reference_band.size
         tcdf = np.cumsum(tc).astype(np.float64) / target_band.size
 
-        ax.set_title("{} cdf match".format(band))
+        ax.set_title("{} cumulative distribution".format(band))
         ax.plot(sv, scdf, label="Source")
         ax.plot(rv, rcdf, label="Reference")
         ax.plot(tv, tcdf, '--r', lw=2, label="Match")
-        ax.legend(loc=9, bbox_to_anchor=(0.5, -0.05))
+        if b == 1:
+            ax.legend(loc=9, bbox_to_anchor=(0.5, -0.05))
+        # ax.set_yticklabels([])
         ax.grid('on')
 
-    plt.savefig(output)
+    plt.savefig(output, bbox_inches='tight')
