@@ -40,9 +40,10 @@ def make_plot(source, reference, target,
     for i, axis in enumerate(axes):
         im = imgs[i]
         title = titles[i]
-        red, _ = np.histogram(im[:, :, 0].ravel(), bins, [0, 1])
-        green, _ = np.histogram(im[:, :, 1].ravel(), bins, [0, 1])
-        blue, _ = np.histogram(im[:, :, 2].ravel(), bins, [0, 1])
+        # compressed for masked arrays, ravel for ndarray
+        red, _ = np.histogram(im[:, :, 0].compressed(), bins, [0, 1])
+        green, _ = np.histogram(im[:, :, 1].compressed(), bins, [0, 1])
+        blue, _ = np.histogram(im[:, :, 2].compressed(), bins, [0, 1])
         for color, name in ((red, "red"), (green, "green"), (blue, "blue")):
             norm = color / im.size
             # axis.plot(norm, color=name, lw=2)
@@ -58,6 +59,20 @@ def make_plot(source, reference, target,
         source_band = src_arr[b]
         reference_band = ref_arr[b]
         target_band = tar_arr[b]
+        try:
+            source_band = source_band.compressed()
+        except:
+            pass
+
+        try:
+            reference_band = reference_band.compressed()
+        except:
+            pass
+
+        try:
+            target_band = target_band.compressed()
+        except:
+            pass
 
         sv, sc = np.unique(source_band, return_counts=True)
         rv, rc = np.unique(reference_band, return_counts=True)

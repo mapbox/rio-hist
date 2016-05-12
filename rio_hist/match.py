@@ -20,6 +20,7 @@ def histogram_match(source, reference, plot_name=None):
     orig_shape = source.shape
     source = source.ravel()
     if np.ma.is_masked(reference):
+        import pdb; pdb.set_trace()
         reference = reference.compressed()
     else:
         reference = reference.ravel()
@@ -44,16 +45,16 @@ def histogram_match(source, reference, plot_name=None):
     # find values in the reference corresponding to the quantiles in the source
     interp_r_values = np.interp(s_quantiles, r_quantiles, r_values)
 
-    # insert the nodata value into interp_r_values at mask_index
     if np.ma.is_masked(source):
+        # insert the nodata value into interp_r_values at mask_index
         interp_r_values = np.insert(interp_r_values, mask_index[0], source.fill_value)
 
     # using the inverted source indicies, pull out the interpolated pixel values
     # and reshape to the original array
     target = interp_r_values[s_idx]
 
-    # remask nodata values
     if np.ma.is_masked(source):
+        # remask nodata values
         target = np.ma.masked_where(s_idx == mask_index[0], target)
         target.fill_value = source.fill_value
 
