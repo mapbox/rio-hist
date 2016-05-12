@@ -1,7 +1,11 @@
+import logging
+
 import numpy as np
 import matplotlib.pyplot as plt
 from pylab import rcParams
 from .utils import raster_to_image
+
+logger = logging.getLogger(__name__)
 
 
 def make_plot(source, reference, target,
@@ -12,12 +16,14 @@ def make_plot(source, reference, target,
     """
     rcParams['figure.figsize'] = 16, 14
 
+    logger.debug("reading images")
     i1 = raster_to_image(source)
     i2 = raster_to_image(reference)
     i3 = raster_to_image(target)
 
     f, ((ax1, ax2, ax3), (ax4, ax5, ax6), (ax7, ax8, ax9)) = plt.subplots(3, 3)
 
+    logger.debug("showing images")
     ax1.imshow(i1)
     ax1.set_title('Source')
     ax1.set_xticklabels([])
@@ -33,6 +39,7 @@ def make_plot(source, reference, target,
     ax3.set_xticklabels([])
     ax3.set_yticklabels([])
 
+    logger.debug("RGB histograms")
     axes = (ax4, ax5, ax6)
     imgs = (i1, i2, i3)
     titles = ('Source', 'Reference', 'Output')
@@ -53,6 +60,7 @@ def make_plot(source, reference, target,
         # axis.set_yticklabels([])
         axis.grid('on')
 
+    logger.debug("CDF match plots")
     axes = (ax7, ax8, ax9)
     for b, band in bands:
         ax = axes[b]
@@ -91,4 +99,5 @@ def make_plot(source, reference, target,
         # ax.set_yticklabels([])
         ax.grid('on')
 
+    logger.debug("writing figure to {}".format(output))
     plt.savefig(output, bbox_inches='tight')
