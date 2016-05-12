@@ -29,10 +29,10 @@ def hist(ctx, src_path, ref_path, dst_path,
     with rasterio.open(src_path) as src:
         profile = src.profile.copy()
         profile['transform'] = profile['affine']
-        src_arr = src.read()
+        src_arr = src.read(masked=True)
 
     with rasterio.open(ref_path) as ref:
-        ref_arr = ref.read()
+        ref_arr = ref.read(masked=True)  # TODO
 
     src = cs_forward(src_arr, color_space)
     ref = cs_forward(ref_arr, color_space)
