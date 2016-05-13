@@ -1,7 +1,11 @@
+import logging
+
 import numpy as np
 import matplotlib.pyplot as plt
 from pylab import rcParams
 from .utils import raster_to_image
+
+logger = logging.getLogger(__name__)
 
 
 def make_plot(source, reference, target,
@@ -12,12 +16,14 @@ def make_plot(source, reference, target,
     """
     rcParams['figure.figsize'] = 16, 14
 
+    logger.debug("reading images")
     i1 = raster_to_image(source)
     i2 = raster_to_image(reference)
     i3 = raster_to_image(target)
 
     f, ((ax1, ax2, ax3), (ax4, ax5, ax6), (ax7, ax8, ax9)) = plt.subplots(3, 3)
 
+    logger.debug("showing images")
     ax1.imshow(i1)
     ax1.set_title('Source')
     ax1.set_xticklabels([])
@@ -33,6 +39,7 @@ def make_plot(source, reference, target,
     ax3.set_xticklabels([])
     ax3.set_yticklabels([])
 
+    logger.debug("RGB histograms")
     axes = (ax4, ax5, ax6)
     imgs = (i1, i2, i3)
     titles = ('Source', 'Reference', 'Output')
@@ -40,9 +47,10 @@ def make_plot(source, reference, target,
     for i, axis in enumerate(axes):
         im = imgs[i]
         title = titles[i]
-        red, _ = np.histogram(im[:, :, 0].ravel(), bins, [0, 1])
-        green, _ = np.histogram(im[:, :, 1].ravel(), bins, [0, 1])
-        blue, _ = np.histogram(im[:, :, 2].ravel(), bins, [0, 1])
+        # compressed for masked arrays, ravel for ndarray
+        red, _ = np.histogram(im[:, :, 0].compressed(), bins, [0, 1])
+        green, _ = np.histogram(im[:, :, 1].compressed(), bins, [0, 1])
+        blue, _ = np.histogram(im[:, :, 2].compressed(), bins, [0, 1])
         for color, name in ((red, "red"), (green, "green"), (blue, "blue")):
             norm = color / im.size
             # axis.plot(norm, color=name, lw=2)
@@ -52,12 +60,27 @@ def make_plot(source, reference, target,
         # axis.set_yticklabels([])
         axis.grid('on')
 
+    logger.debug("CDF match plots")
     axes = (ax7, ax8, ax9)
     for b, band in bands:
         ax = axes[b]
         source_band = src_arr[b]
         reference_band = ref_arr[b]
         target_band = tar_arr[b]
+        try:
+            source_band = source_band.compressed()
+        except:
+            pass
+
+        try:
+            reference_band = reference_band.compressed()
+        except:
+            pass
+
+        try:
+            target_band = target_band.compressed()
+        except:
+            pass
 
         sv, sc = np.unique(source_band, return_counts=True)
         rv, rc = np.unique(reference_band, return_counts=True)

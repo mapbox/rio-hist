@@ -84,5 +84,5 @@ def raster_to_image(raster):
     from a rasterio source
     """
     with rasterio.open(raster) as src:
-        arr = src.read()
+        arr = src.read(masked=True)
     return reshape_as_image(cs_forward(arr, 'RGB'))
