@@ -76,6 +76,19 @@ def histogram_match(source, reference, plot_name=None):
     return target.reshape(orig_shape)
 
 
+def calculate_mask(arr):
+    msk = arr.mask
+    if msk.sum() == 0:
+        mask = None
+        fill = None
+    else:
+        # TODO alpha band? gdal mask? union of 3 bands?
+        # IOW how to get the definitive 2D mask?
+        mask = (msk[0] & msk[1] & msk[2])
+        fill = arr.fill_value
+    return mask, fill
+
+
 def hist_match_worker(src_path, ref_path, dst_path,
                       creation_options, bands, color_space, plot):
     """Match histogram of src to ref, outputing to dst
@@ -86,36 +99,13 @@ def hist_match_worker(src_path, ref_path, dst_path,
 
     with rasterio.open(src_path) as src:
         profile = src.profile.copy()
-
         src_arr = src.read(masked=True)
-        _msk = src_arr.mask
-        if _msk.sum() == 0:
-            logger.debug("src has all valid data, no mask needed")
-            src_mask = None
-            src_fill = None
-        else:
-            logger.debug("src has nodata pixels, calculating mask")
-            # TODO alpha band? gdal mask? union of 3 bands?
-            # IOW how to get the definitive 2D mask?
-            src_mask = (_msk[0] & _msk[1] & _msk[2])
-            src_fill = src_arr.fill_value
-        # to ndarray, mask re-applied later
+        src_mask, src_fill = calculate_mask(src_arr)
         src_arr = src_arr.filled()
 
     with rasterio.open(ref_path) as ref:
         ref_arr = ref.read(masked=True)
-        _msk = ref_arr.mask
-        if _msk.sum() == 0:
-            logger.debug("ref has all valid data, no mask needed")
-            ref_mask = None
-            ref_fill = None
-        else:
-            logger.debug("ref has nodata pixels, calculating mask")
-            # TODO alpha band? gdal mask? union of 3 bands?
-            # IOW how to get the definitive 2D mask?
-            ref_mask = (_msk[0] & _msk[1] & _msk[2])
-            ref_fill = ref_arr.fill_value
-        # to ndarray, mask re-applied later
+        ref_mask, ref_fill = calculate_mask(ref_arr)
         ref_arr = ref_arr.filled()
 
     src = cs_forward(src_arr, color_space)
@@ -131,13 +121,13 @@ def hist_match_worker(src_path, ref_path, dst_path,
         ref_band = ref[b]
 
         # Re-apply 2D mask to each band
-        if src_mask is not None and src_fill is not None:
+        if src_mask is not None:
             logger.debug("apply src_mask to band {}".format(b))
             src_band = np.ma.asarray(src_band)
             src_band.mask = src_mask
             src_band.fill_value = src_fill
 
-        if ref_mask is not None and ref_fill is not None:
+        if ref_mask is not None:
             logger.debug("apply ref_mask to band {}".format(b))
             ref_band = np.ma.asarray(ref_band)
             ref_band.mask = ref_mask
