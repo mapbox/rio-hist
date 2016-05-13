@@ -1,7 +1,7 @@
 import logging
+import os
 
 import click
-
 import numpy as np
 import rasterio
 from rasterio.rio.options import creation_options
@@ -9,12 +9,9 @@ from rio_hist.utils import cs_forward, cs_backward
 from rio_hist.plot import make_plot
 from rio_hist.match import histogram_match
 
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger('rio_hist')
 
 @click.command('hist')
-# @click.option('--out-dtype', '-d', type=click.Choice(['uint8', 'uint16']),
-#               help="Integer data type for output data, default: same as input")
 @click.option('--color-space', '-c', default="RGB",
               type=click.Choice(['RGB', 'HSV', 'LCH', 'LAB', 'LUV', 'XYZ']),
               help="Colorspace")
@@ -32,18 +29,14 @@ def hist(ctx, src_path, ref_path, dst_path,
          verbose, creation_options, bands, color_space, plot):
     """Color correction by histogram matching
     """
-    outlog = logging.getLogger('rio_hist')
     if verbose:
-        outlog.setLevel(level=logging.DEBUG)
-    else:
-        outlog.setLevel(level=logging.INFO)
+        logger.setLevel(logging.DEBUG)
 
     logger.info("Matching {} to histogram of {} using {} color space".format(
-        src_path, ref_path, color_space))
+        os.path.basename(src_path), os.path.basename(ref_path), color_space))
 
     with rasterio.open(src_path) as src:
         profile = src.profile.copy()
-        profile['transform'] = profile['affine']
 
         src_arr = src.read(masked=True)
         _msk = src_arr.mask
@@ -114,12 +107,18 @@ def hist(ctx, src_path, ref_path, dst_path,
         target_rgb.fill_value = src_fill
 
     profile['dtype'] = 'uint8'
+    profile['transform'] = profile['affine']
+    profile.update(creation_options)
+
+    logger.info("Writing raster {}".format(dst_path))
     with rasterio.open(dst_path, 'w', **profile) as dst:
         dst.write(target_rgb)
 
     if plot:
+        outplot = os.path.splitext(dst_path)[0] + "_plot.jpg"
+        logger.info("Writing figure to {}".format(outplot))
         make_plot(
             src_path, ref_path, dst_path,
             src, ref, target,
-            output=dst_path + "_plot.jpg",
+            output=outplot,
             bands=tuple(zip(bixs, band_names)))

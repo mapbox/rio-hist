@@ -99,5 +99,4 @@ def make_plot(source, reference, target,
         # ax.set_yticklabels([])
         ax.grid('on')
 
-    logger.debug("writing figure to {}".format(output))
     plt.savefig(output, bbox_inches='tight')
