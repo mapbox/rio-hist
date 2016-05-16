@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 import rasterio
-from .utils import cs_forward, cs_backward
+from .utils import cs_forward, cs_backward, read_mask
 from .plot import make_plot
 
 logger = logging.getLogger(__name__)
@@ -76,15 +76,14 @@ def histogram_match(source, reference, plot_name=None):
     return target.reshape(orig_shape)
 
 
-def calculate_mask(arr):
+def calculate_mask(src, arr):
     msk = arr.mask
     if msk.sum() == 0:
         mask = None
         fill = None
     else:
-        # TODO alpha band? gdal mask? union of 3 bands?
-        # IOW how to get the definitive 2D mask?
-        mask = (msk[0] & msk[1] & msk[2])
+        _gdal_mask = read_mask(src)
+        mask = np.invert((_gdal_mask / 255).astype('bool'))
         fill = arr.fill_value
     return mask, fill
 
@@ -100,12 +99,12 @@ def hist_match_worker(src_path, ref_path, dst_path,
     with rasterio.open(src_path) as src:
         profile = src.profile.copy()
         src_arr = src.read(masked=True)
-        src_mask, src_fill = calculate_mask(src_arr)
+        src_mask, src_fill = calculate_mask(src, src_arr)
         src_arr = src_arr.filled()
 
     with rasterio.open(ref_path) as ref:
         ref_arr = ref.read(masked=True)
-        ref_mask, ref_fill = calculate_mask(ref_arr)
+        ref_mask, ref_fill = calculate_mask(ref, ref_arr)
         ref_arr = ref_arr.filled()
 
     src = cs_forward(src_arr, color_space)
@@ -144,14 +143,23 @@ def hist_match_worker(src_path, ref_path, dst_path,
             target_rgb = np.ma.asarray(target_rgb)
         target_rgb.mask = np.array((src_mask, src_mask, src_mask))
         target_rgb.fill_value = src_fill
+        profile['count'] = 4
+    else:
+        profile['count'] = 3
 
     profile['dtype'] = 'uint8'
+    profile['nodata'] = None
     profile['transform'] = profile['affine']
     profile.update(creation_options)
 
     logger.info("Writing raster {}".format(dst_path))
     with rasterio.open(dst_path, 'w', **profile) as dst:
-        dst.write(target_rgb)
+        dst.write(target_rgb[0], 1)
+        dst.write(target_rgb[1], 2)
+        dst.write(target_rgb[2], 3)
+        if src_mask is not None:
+            gdal_mask = (np.invert(src_mask) * 255).astype('uint8')
+            dst.write(gdal_mask, 4)
 
     if plot:
         outplot = os.path.splitext(dst_path)[0] + "_plot.jpg"

@@ -1,11 +1,42 @@
 import numpy as np
 import rasterio
+from rasterio.enums import ColorInterp, MaskFlags
 from rio_color.colorspace import arr_rgb_to_lch
 from rio_color.colorspace import arr_lch_to_rgb
 from skimage.color import rgb2lab, lab2rgb
 from skimage.color import rgb2hsv, hsv2rgb
 from skimage.color import rgb2luv, luv2rgb
 from skimage.color import rgb2xyz, xyz2rgb
+
+
+def read_mask(src):
+    """Get the 2D uint8 dataset-wide mask according to these rules, in order of precedence
+
+    1. If a .msk file, dataset-wide alpha or internal mask exists, it will be used for the mask band.
+    2. If an 4-band RGB with a shadow nodata value, band 4 will be used as the mask band.
+    3. If a nodata value exists, use the binary OR intersection of the band masks
+    4. If no nodata value, return a mask with all 255
+
+    0 = nodata, 255 = valid data
+    Note that this differs slighly from GDAL RFC15 in that it applies dataset-wide
+    (see https://trac.osgeo.org/gdal/wiki/rfc15_nodatabitmask)
+    """
+    masks = src.read_masks()
+
+    # GDAL found dataset-wide alpha band or mask
+    if src.mask_flags[0] & MaskFlags.per_dataset:
+        return masks[0]
+
+    # use Alpha mask if available and looks like RGB, even if nodata is shadowing
+    elif src.count == 4 and src.colorinterp(1) == ColorInterp.red:
+        return masks[3]
+
+    # Or use the binary OR intersection of all GDALGetMaskBands
+    else:
+        mask = masks[0]
+        for i in range(1, src.count):
+            mask = mask | masks[i]
+        return mask
 
 
 def reshape_as_image(arr):
