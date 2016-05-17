@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/mapbox/rio-hist.svg?branch=master)](https://travis-ci.org/mapbox/rio-color)
+
+
 # rio-hist
 
 Histogram matching plugin for rasterio.
