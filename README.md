@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mapbox/rio-hist.svg?branch=master)](https://travis-ci.org/mapbox/rio-color)
+[![Build Status](https://travis-ci.org/mapbox/rio-hist.svg?branch=master)](https://travis-ci.org/mapbox/rio-hist)
 [![Coverage Status](https://coveralls.io/repos/github/mapbox/rio-hist/badge.svg?branch=master)](https://coveralls.io/github/mapbox/rio-hist?branch=master)
 
 # rio-hist
