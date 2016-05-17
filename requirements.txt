@@ -1,0 +1,6 @@
+click
+rasterio
+rio-mucho
+rio-color
+scikit-image
+matplotlib
