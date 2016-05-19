@@ -1,12 +1,11 @@
 import numpy as np
 import rasterio
 from rasterio.enums import ColorInterp, MaskFlags
-from rio_color.colorspace import arr_rgb_to_lch
-from rio_color.colorspace import arr_lch_to_rgb
-from skimage.color import rgb2lab, lab2rgb
+from rio_color.colorspace import convert_arr, ColorSpace
+
+# TODO either remove or replace with future rio_color.colorspace method
 from skimage.color import rgb2hsv, hsv2rgb
 from skimage.color import rgb2luv, luv2rgb
-from skimage.color import rgb2xyz, xyz2rgb
 
 
 def read_mask(src):
@@ -60,23 +59,29 @@ def cs_forward(arr, cs='rgb'):
     if cs == 'rgb':
         return arrnorm
     elif cs == 'lch':
-        return arr_rgb_to_lch(arrnorm)
+        return convert_arr(arrnorm,
+                           src=ColorSpace.rgb,
+                           dst=ColorSpace.lch)
     elif cs == 'lab':
-        img = reshape_as_image(arrnorm)
-        lab = rgb2lab(img)
-        return reshape_as_raster(lab)
+        return convert_arr(arrnorm,
+                           src=ColorSpace.rgb,
+                           dst=ColorSpace.lab)
     elif cs == 'hsv':
+        # TODO either remove or replace with
+        # future rio_color.colorspace method
         img = reshape_as_image(arrnorm)
         lab = rgb2hsv(img)
         return reshape_as_raster(lab)
     elif cs == 'luv':
+        # TODO either remove or replace with
+        # future rio_color.colorspace method
         img = reshape_as_image(arrnorm)
         lab = rgb2luv(img)
         return reshape_as_raster(lab)
     elif cs == 'xyz':
-        img = reshape_as_image(arrnorm)
-        lab = rgb2xyz(img)
-        return reshape_as_raster(lab)
+        return convert_arr(arrnorm,
+                           src=ColorSpace.rgb,
+                           dst=ColorSpace.xyz)
 
 
 def cs_backward(arr, cs='rgb'):
@@ -86,28 +91,34 @@ def cs_backward(arr, cs='rgb'):
     if cs == 'rgb':
         return (arr * 255).astype('uint8')
     elif cs == 'lch':
-        rgb = arr_lch_to_rgb(arr)
+        rgb = convert_arr(arr,
+                          src=ColorSpace.lch,
+                          dst=ColorSpace.rgb)
         return (rgb * 255).astype('uint8')
     elif cs == 'lab':
-        lab = reshape_as_image(arr)
-        rgb = lab2rgb(lab)
-        rgbrast = reshape_as_raster(rgb)
-        return (rgbrast * 255).astype('uint8')
+        rgb = convert_arr(arr,
+                          src=ColorSpace.lab,
+                          dst=ColorSpace.rgb)
+        return (rgb * 255).astype('uint8')
     elif cs == 'hsv':
+        # TODO either remove or replace with
+        # future rio_color.colorspace method
         hsv = reshape_as_image(arr)
         rgb = hsv2rgb(hsv)
         rgbrast = reshape_as_raster(rgb)
         return (rgbrast * 255).astype('uint8')
     elif cs == 'luv':
+        # TODO either remove or replace with
+        # future rio_color.colorspace method
         luv = reshape_as_image(arr)
         rgb = luv2rgb(luv)
         rgbrast = reshape_as_raster(rgb)
         return (rgbrast * 255).astype('uint8')
     elif cs == 'xyz':
-        xyz = reshape_as_image(arr)
-        rgb = xyz2rgb(xyz)
-        rgbrast = reshape_as_raster(rgb)
-        return (rgbrast * 255).astype('uint8')
+        rgb = convert_arr(arr,
+                          src=ColorSpace.xyz,
+                          dst=ColorSpace.rgb)
+        return (rgb * 255).astype('uint8')
 
 
 def raster_to_image(raster):
