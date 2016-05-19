@@ -1,6 +1,6 @@
 click
 rasterio
 rio-mucho
-rio-color
+rio-color>=0.3
 scikit-image
 matplotlib

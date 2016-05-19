@@ -33,7 +33,7 @@ setup(name='rio-hist',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
-      install_requires=["click", "rasterio"],
+      install_requires=["click", "rasterio", "rio_color>=0.3"],
       extras_require={
           'test': ['pytest', 'pytest-cov', 'codecov']},
       entry_points="""
