@@ -3,22 +3,10 @@ import rasterio
 from rasterio.enums import ColorInterp, MaskFlags
 from rio_color.colorspace import convert_arr, ColorSpace
 
-# TODO either remove or replace with future rio_color.colorspace method
-from skimage.color import rgb2hsv, hsv2rgb
-from skimage.color import rgb2luv, luv2rgb
-
 
 def read_mask(src):
-    """Get the 2D uint8 dataset-wide mask according to these rules, in order of precedence
-
-    1. If a .msk file, dataset-wide alpha or internal mask exists, it will be used for the mask band.
-    2. If an 4-band RGB with a shadow nodata value, band 4 will be used as the mask band.
-    3. If a nodata value exists, use the binary OR intersection of the band masks
-    4. If no nodata value, return a mask with all 255
-
-    0 = nodata, 255 = valid data
-    Note that this differs slighly from GDAL RFC15 in that it applies dataset-wide
-    (see https://trac.osgeo.org/gdal/wiki/rfc15_nodatabitmask)
+    """
+    !!!!!!!!! TODO Use RasterReader.dataset_mask in rasterio 0.36
     """
     masks = src.read_masks()
 
@@ -67,17 +55,16 @@ def cs_forward(arr, cs='rgb'):
                            src=ColorSpace.rgb,
                            dst=ColorSpace.lab)
     elif cs == 'hsv':
+        from skimage.color import rgb2hsv
         # TODO either remove or replace with
         # future rio_color.colorspace method
         img = reshape_as_image(arrnorm)
         lab = rgb2hsv(img)
         return reshape_as_raster(lab)
     elif cs == 'luv':
-        # TODO either remove or replace with
-        # future rio_color.colorspace method
-        img = reshape_as_image(arrnorm)
-        lab = rgb2luv(img)
-        return reshape_as_raster(lab)
+        return convert_arr(arrnorm,
+                           src=ColorSpace.rgb,
+                           dst=ColorSpace.luv)
     elif cs == 'xyz':
         return convert_arr(arrnorm,
                            src=ColorSpace.rgb,
@@ -101,6 +88,7 @@ def cs_backward(arr, cs='rgb'):
                           dst=ColorSpace.rgb)
         return (rgb * 255).astype('uint8')
     elif cs == 'hsv':
+        from skimage.color import hsv2rgb
         # TODO either remove or replace with
         # future rio_color.colorspace method
         hsv = reshape_as_image(arr)
@@ -108,12 +96,10 @@ def cs_backward(arr, cs='rgb'):
         rgbrast = reshape_as_raster(rgb)
         return (rgbrast * 255).astype('uint8')
     elif cs == 'luv':
-        # TODO either remove or replace with
-        # future rio_color.colorspace method
-        luv = reshape_as_image(arr)
-        rgb = luv2rgb(luv)
-        rgbrast = reshape_as_raster(rgb)
-        return (rgbrast * 255).astype('uint8')
+        rgb = convert_arr(arr,
+                          src=ColorSpace.luv,
+                          dst=ColorSpace.rgb)
+        return (rgb * 255).astype('uint8')
     elif cs == 'xyz':
         rgb = convert_arr(arr,
                           src=ColorSpace.xyz,
