@@ -2,7 +2,6 @@ coveralls>=0.4
 cython
 enum34
 numpy>=1.10.0
-scipy
 pytest
 setuptools>=0.9.8
 wheel

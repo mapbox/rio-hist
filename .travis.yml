@@ -29,8 +29,6 @@ before_install:
 install:
   - "pip wheel numpy"
   - "pip install --use-wheel numpy"
-  - "pip wheel scipy"
-  - "pip install --use-wheel scipy"
   - "pip wheel -r requirements.txt"
   - "pip install --use-wheel -r requirements.txt"
   - "pip wheel -r requirements-dev.txt"

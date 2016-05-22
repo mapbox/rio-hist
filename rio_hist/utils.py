@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import rasterio
 from rasterio.enums import ColorInterp, MaskFlags
@@ -55,6 +57,9 @@ def cs_forward(arr, cs='rgb'):
                            src=ColorSpace.rgb,
                            dst=ColorSpace.lab)
     elif cs == 'hsv':
+        warnings.warn(
+            "HSV will not be supported in future versions",
+            DeprecationWarning)
         from skimage.color import rgb2hsv
         # TODO either remove or replace with
         # future rio_color.colorspace method
@@ -88,6 +93,9 @@ def cs_backward(arr, cs='rgb'):
                           dst=ColorSpace.rgb)
         return (rgb * 255).astype('uint8')
     elif cs == 'hsv':
+        warnings.warn(
+            "HSV will not be supported in future versions",
+            DeprecationWarning)
         from skimage.color import hsv2rgb
         # TODO either remove or replace with
         # future rio_color.colorspace method
