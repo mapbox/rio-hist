@@ -91,7 +91,7 @@ def calculate_mask(src, arr):
 def hist_match_worker(src_path, ref_path, dst_path,
                       creation_options, bands, color_space, plot):
     """Match histogram of src to ref, outputing to dst
-    optionally output a plot to <dst>.jpg
+    optionally output a plot to <dst>_plot.png
     """
     logger.info("Matching {} to histogram of {} using {} color space".format(
         os.path.basename(src_path), os.path.basename(ref_path), color_space))
@@ -162,7 +162,7 @@ def hist_match_worker(src_path, ref_path, dst_path,
             dst.write(gdal_mask, 4)
 
     if plot:
-        outplot = os.path.splitext(dst_path)[0] + "_plot.jpg"
+        outplot = os.path.splitext(dst_path)[0] + "_plot.png"
         logger.info("Writing figure to {}".format(outplot))
         make_plot(
             src_path, ref_path, dst_path,

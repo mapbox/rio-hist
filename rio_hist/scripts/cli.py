@@ -14,7 +14,7 @@ logger = logging.getLogger('rio_hist')
 @click.option('--bands', '-b', default="1,2,3",
               help="comma-separated list of bands to match (default 1,2,3)")
 @click.option('--plot', is_flag=True, default=False,
-              help="create a <basename>_plot.jpg with diagnostic plots")
+              help="create a <basename>_plot.png with diagnostic plots")
 @click.option('--verbose', '-v', is_flag=True, default=False)
 @click.argument('src_path', type=click.Path(exists=True))
 @click.argument('ref_path', type=click.Path(exists=True))
