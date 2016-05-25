@@ -9,7 +9,7 @@ logger = logging.getLogger('rio_hist')
 
 @click.command('hist')
 @click.option('--color-space', '-c', default="RGB",
-              type=click.Choice(['RGB', 'HSV', 'LCH', 'LAB', 'LUV', 'XYZ']),
+              type=click.Choice(['RGB', 'LCH', 'LAB', 'LUV', 'XYZ']),
               help="Colorspace")
 @click.option('--bands', '-b', default="1,2,3",
               help="comma-separated list of bands to match (default 1,2,3)")

@@ -8,7 +8,7 @@ from rio_color.colorspace import convert_arr, ColorSpace
 
 def read_mask(src):
     """
-    !!!!!!!!! TODO Use RasterReader.dataset_mask in rasterio 0.36
+    TODO Use RasterReader.dataset_mask in rasterio 0.36
     """
     masks = src.read_masks()
 
@@ -30,12 +30,16 @@ def read_mask(src):
 
 def reshape_as_image(arr):
     """raster order (bands, rows, cols) -> image (rows, cols, bands)
+
+    TODO Use rasterio.plot.reshape_as_image in rasterio 0.36?
     """
     return np.swapaxes(np.swapaxes(arr, 0, 2), 0, 1)
 
 
 def reshape_as_raster(arr):
     """image order (rows, cols, bands) -> rasterio (bands, rows, cols)
+
+    TODO Use rasterio.plot.reshape_as_image in rasterio 0.36?
     """
     return np.swapaxes(np.swapaxes(arr, 2, 0), 2, 1)
 
@@ -56,16 +60,6 @@ def cs_forward(arr, cs='rgb'):
         return convert_arr(arrnorm,
                            src=ColorSpace.rgb,
                            dst=ColorSpace.lab)
-    elif cs == 'hsv':
-        warnings.warn(
-            "HSV will not be supported in future versions",
-            DeprecationWarning)
-        from skimage.color import rgb2hsv
-        # TODO either remove or replace with
-        # future rio_color.colorspace method
-        img = reshape_as_image(arrnorm)
-        lab = rgb2hsv(img)
-        return reshape_as_raster(lab)
     elif cs == 'luv':
         return convert_arr(arrnorm,
                            src=ColorSpace.rgb,
@@ -92,17 +86,6 @@ def cs_backward(arr, cs='rgb'):
                           src=ColorSpace.lab,
                           dst=ColorSpace.rgb)
         return (rgb * 255).astype('uint8')
-    elif cs == 'hsv':
-        warnings.warn(
-            "HSV will not be supported in future versions",
-            DeprecationWarning)
-        from skimage.color import hsv2rgb
-        # TODO either remove or replace with
-        # future rio_color.colorspace method
-        hsv = reshape_as_image(arr)
-        rgb = hsv2rgb(hsv)
-        rgbrast = reshape_as_raster(rgb)
-        return (rgbrast * 255).astype('uint8')
     elif cs == 'luv':
         rgb = convert_arr(arr,
                           src=ColorSpace.luv,
