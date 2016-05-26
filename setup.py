@@ -35,6 +35,7 @@ setup(name='rio-hist',
       zip_safe=False,
       install_requires=["click", "rasterio", "rio_color>=0.4"],
       extras_require={
+          'plot': ['matplotlib'],
           'test': ['pytest', 'pytest-cov', 'codecov']},
       entry_points="""
       [rasterio.rio_plugins]

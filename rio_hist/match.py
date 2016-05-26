@@ -5,12 +5,11 @@ import os
 import numpy as np
 import rasterio
 from .utils import cs_forward, cs_backward, read_mask
-from .plot import make_plot
 
 logger = logging.getLogger(__name__)
 
 
-def histogram_match(source, reference, plot_name=None):
+def histogram_match(source, reference):
     """
     Adjust the values of a source array
     so that its histogram matches that of a reference array
@@ -162,6 +161,7 @@ def hist_match_worker(src_path, ref_path, dst_path,
             dst.write(gdal_mask, 4)
 
     if plot:
+        from .plot import make_plot
         outplot = os.path.splitext(dst_path)[0] + "_plot.png"
         logger.info("Writing figure to {}".format(outplot))
         make_plot(

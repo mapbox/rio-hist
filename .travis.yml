@@ -34,6 +34,7 @@ install:
   - "pip wheel -r requirements-dev.txt"
   - "pip install --use-wheel -r requirements-dev.txt"
   - "pip install -e .[test]"
+  - "pip install -e .[plot]"
 script:
   - py.test --cov rio_color --cov-report term-missing
 after_success:
