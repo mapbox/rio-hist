@@ -4,6 +4,7 @@ import os
 
 import numpy as np
 import rasterio
+from rasterio.transform import guard_transform
 from .utils import cs_forward, cs_backward, read_mask
 
 logger = logging.getLogger(__name__)
@@ -148,7 +149,7 @@ def hist_match_worker(src_path, ref_path, dst_path,
 
     profile['dtype'] = 'uint8'
     profile['nodata'] = None
-    profile['transform'] = profile['affine']
+    profile['transform'] = guard_transform(profile['transform'])
     profile.update(creation_options)
 
     logger.info("Writing raster {}".format(dst_path))
