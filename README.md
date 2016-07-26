@@ -33,7 +33,7 @@ Usage: rio hist [OPTIONS] SRC_PATH REF_PATH DST_PATH
   Color correction by histogram matching
 
 Options:
-  -c, --color-space [RGB|LCH|LAB|LUV|XYZ]
+  -c, --color-space [RGB|LCH|Lab|LUV|XYZ]
                                   Colorspace
   -b, --bands TEXT                comma-separated list of bands to match
                                   (default 1,2,3)
