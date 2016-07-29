@@ -1,5 +1,9 @@
 CHANGES
 
+0.2.0 (2016-07-29)
+------------------
+- fix integer division bug in histogram plotting with python 2
+
 0.1.1 (2016-05-26)
 ------------------
 - make matplotlib an optional runtime dependency
