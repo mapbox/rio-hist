@@ -32,7 +32,7 @@ def test_hist_cli_lab_colorspace(tmpdir):
     output = str(tmpdir.join('matched.tif'))
     runner = CliRunner()
     result = runner.invoke(
-        hist, ['-c', 'LAB', '-b', '1,2,3',
+        hist, ['-c', 'Lab', '-b', '1,2,3',
                'tests/data/source1.tif',
                'tests/data/reference1.tif',
                output])
