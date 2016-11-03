@@ -13,6 +13,10 @@ logger = logging.getLogger('rio_hist')
               help="Colorspace")
 @click.option('--bands', '-b', default="1,2,3",
               help="comma-separated list of bands to match (default 1,2,3)")
+@click.option('--match-proportion', '-m', default=1.0, type=float,
+              help="Linearly interpolate values to a proportion between"
+                   "source and target values. 1.0 is full match"
+                   "0.0 is no match")
 @click.option('--plot', is_flag=True, default=False,
               help="create a <basename>_plot.png with diagnostic plots")
 @click.option('--verbose', '-v', is_flag=True, default=False)
@@ -21,12 +25,12 @@ logger = logging.getLogger('rio_hist')
 @click.argument('dst_path', type=click.Path(exists=False))
 @click.pass_context
 @creation_options
-def hist(ctx, src_path, ref_path, dst_path,
+def hist(ctx, src_path, ref_path, dst_path, match_proportion,
          verbose, creation_options, bands, color_space, plot):
     """Color correction by histogram matching
     """
     if verbose:
         logger.setLevel(logging.DEBUG)
 
-    hist_match_worker(src_path, ref_path, dst_path,
+    hist_match_worker(src_path, ref_path, dst_path, match_proportion,
                       creation_options, bands, color_space, plot)
