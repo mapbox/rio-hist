@@ -10,7 +10,7 @@ from .utils import cs_forward, cs_backward, read_mask
 logger = logging.getLogger(__name__)
 
 
-def histogram_match(source, reference):
+def histogram_match(source, reference, match_proportion=1.0):
     """
     Adjust the values of a source array
     so that its histogram matches that of a reference array
@@ -19,6 +19,7 @@ def histogram_match(source, reference):
     -----------
         source: np.ndarray
         reference: np.ndarray
+        match_proportion: float, range 0..1
 
     Returns:
     -----------
@@ -68,6 +69,13 @@ def histogram_match(source, reference):
     logger.debug("create target array from interpolated values by index")
     target = interp_r_values[s_idx]
 
+    # interpolation b/t target and source
+    # 1.0 = full histogram match
+    # 0.0 = no change
+    if match_proportion is not None and match_proportion != 1:
+        diff = source - target
+        target = source - (diff * match_proportion)
+
     if np.ma.is_masked(source):
         logger.debug("source is masked, remask those pixels by position index")
         target = np.ma.masked_where(s_idx == mask_index[0], target)
@@ -88,7 +96,7 @@ def calculate_mask(src, arr):
     return mask, fill
 
 
-def hist_match_worker(src_path, ref_path, dst_path,
+def hist_match_worker(src_path, ref_path, dst_path, match_proportion,
                       creation_options, bands, color_space, plot):
     """Match histogram of src to ref, outputing to dst
     optionally output a plot to <dst>_plot.png
@@ -132,7 +140,7 @@ def hist_match_worker(src_path, ref_path, dst_path,
             ref_band.mask = ref_mask
             ref_band.fill_value = ref_fill
 
-        target[b] = histogram_match(src_band, ref_band)
+        target[b] = histogram_match(src_band, ref_band, match_proportion)
 
     target_rgb = cs_backward(target, color_space)
 

@@ -28,17 +28,22 @@ also allows us to see some diagnostic plots to inspect the results and the cumul
 ## CLI docs
 
 ```
+$ rio hist --help
 Usage: rio hist [OPTIONS] SRC_PATH REF_PATH DST_PATH
 
   Color correction by histogram matching
 
 Options:
-  -c, --color-space [RGB|LCH|Lab|LUV|XYZ]
+  -c, --color-space [RGB|LCH|LAB|Lab|LUV|XYZ]
                                   Colorspace
   -b, --bands TEXT                comma-separated list of bands to match
                                   (default 1,2,3)
+  -m, --match-proportion FLOAT    Interpolate values between source and
+                                  reference histogram. 1.0 (default) is full
+                                  match, 0.0 is no match
   --plot                          create a <basename>_plot.png with diagnostic
                                   plots
+  -v, --verbose
   --co NAME=VALUE                 Driver specific creation options.See the
                                   documentation for the selected output driver
                                   for more information.
@@ -50,5 +55,3 @@ Options:
 `rio_hist.match.histogram_match` is the main entry point and operates on a single band.
 
 `rio_hist.utils` has some interesting functions that may be useful in other contexts.
-
-
