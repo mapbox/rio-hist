@@ -69,10 +69,10 @@ def histogram_match(source, reference, match_proportion=1.0):
     logger.debug("create target array from interpolated values by index")
     target = interp_r_values[s_idx]
 
-    # linear interpolation b/t target and source
+    # interpolation b/t target and source
     # 1.0 = full histogram match
     # 0.0 = no change
-    if match_proportion < 1:
+    if match_proportion is not None and match_proportion != 1:
         diff = source - target
         target = source - (diff * match_proportion)
 

@@ -7,6 +7,12 @@ from rio_hist.match import hist_match_worker
 logger = logging.getLogger('rio_hist')
 
 
+def validate_proportion(ctx, param, value):
+    if value < 0 or value > 1:
+        raise click.BadParameter('must be between 0 and 1')
+    return float(value)
+
+
 @click.command('hist')
 @click.option('--color-space', '-c', default="RGB",
               type=click.Choice(['RGB', 'LCH', 'LAB', 'Lab', 'LUV', 'XYZ']),
@@ -14,9 +20,9 @@ logger = logging.getLogger('rio_hist')
 @click.option('--bands', '-b', default="1,2,3",
               help="comma-separated list of bands to match (default 1,2,3)")
 @click.option('--match-proportion', '-m', default=1.0, type=float,
-              help="Linearly interpolate values to a proportion between"
-                   "source and target values. 1.0 is full match"
-                   "0.0 is no match")
+              callback=validate_proportion,
+              help="Interpolate values between source and reference histogram. "
+                   "1.0 (default) is full match, 0.0 is no match")
 @click.option('--plot', is_flag=True, default=False,
               help="create a <basename>_plot.png with diagnostic plots")
 @click.option('--verbose', '-v', is_flag=True, default=False)
