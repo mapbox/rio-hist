@@ -1,7 +1,8 @@
+-r requirements.txt
 coveralls>=0.4
 cython
 enum34
 numpy>=1.10.0
-pytest
+pytest-cov
 setuptools>=0.9.8
 wheel
