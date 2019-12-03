@@ -1,7 +1,7 @@
 CHANGES
 
-1.0dev
-------
+1.0b1 (2019-12-03)
+------------------
 - This module now relies on a rasterio dataset's dataset_mask method. The
   module's own implementation has been deleted (#17).
 
