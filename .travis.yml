@@ -32,5 +32,5 @@ deploy:
   on:
     tags: true
   provider: pypi
-  distribution: "sdist bdist_wheel"
+  distributions: "sdist bdist_wheel"
   user: __token__
