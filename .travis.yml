@@ -1,5 +1,5 @@
 language: python
-sudo: false
+
 cache:
   directories:
     - ~/.cache/pip
@@ -7,36 +7,35 @@ env:
   global:
     - PIP_WHEEL_DIR=$HOME/.cache/pip/wheels
     - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
-addons:
-  apt:
-    packages:
-    - libgdal1h
-    - gdal-bin
-    - libgdal-dev
-    - libatlas-dev
-    - libatlas-base-dev
-    - gfortran
+
 python:
   - "2.7"
-  - "3.5"
+  - "3.6"
+
+services:
+  - xvfb
+
 before_script: # configure a headless display to test plot generation
 - "export DISPLAY=:99.0"
 - "sh -e /etc/init.d/xvfb start"
 - sleep 6 # give xvfb some time to start
+
 before_install:
-  - "pip install -U pip"
-  - "pip install wheel"
+  - python -m pip install -U pip
+  - python -m pip install -r requirements-dev.txt
+
 install:
-  - "pip wheel numpy"
-  - "pip install --use-wheel numpy"
-  - "pip wheel -r requirements.txt"
-  - "pip install --use-wheel -r requirements.txt"
-  - "pip wheel -r requirements-dev.txt"
-  - "pip install --use-wheel -r requirements-dev.txt"
-  - "pip install -e .[test]"
-  - "pip install -e .[plot]"
+  - pip install -e .[test,plot]
+
 script:
-  - py.test --cov rio_hist --cov-report term-missing
+  - python -m pytest --cov rio_hist --cov-report term-missing
+
 after_success:
   - coveralls
 
+deploy:
+  on:
+    tags: true
+  provider: pypi
+  distribution: "sdist bdist_wheel"
+  user: __token__

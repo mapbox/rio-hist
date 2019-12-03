@@ -1,5 +1,10 @@
 CHANGES
 
+1.0dev
+------
+- This module now relies on a rasterio dataset's dataset_mask method. The
+  module's own implementation has been deleted (#17).
+
 0.2.0 (2016-07-29)
 ------------------
 - fix integer division bug in histogram plotting with python 2

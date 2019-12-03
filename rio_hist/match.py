@@ -5,7 +5,8 @@ import os
 import numpy as np
 import rasterio
 from rasterio.transform import guard_transform
-from .utils import cs_forward, cs_backward, read_mask
+from .utils import cs_forward, cs_backward
+
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +91,7 @@ def calculate_mask(src, arr):
         mask = None
         fill = None
     else:
-        _gdal_mask = read_mask(src)
+        _gdal_mask = src.dataset_mask()
         mask = np.invert((_gdal_mask / 255).astype('bool'))
         fill = arr.fill_value
     return mask, fill

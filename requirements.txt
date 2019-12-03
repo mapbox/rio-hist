@@ -1,5 +1,5 @@
 click
-rasterio
+rasterio~=1.0
 rio-mucho
 rio-color>=0.4
 matplotlib

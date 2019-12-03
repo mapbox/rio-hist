@@ -7,28 +7,6 @@ from rasterio.enums import ColorInterp, MaskFlags
 from rio_color.colorspace import convert_arr, ColorSpace
 
 
-def read_mask(src):
-    """
-    TODO Use RasterReader.dataset_mask in rasterio 0.36
-    """
-    masks = src.read_masks()
-
-    # GDAL found dataset-wide alpha band or mask
-    if src.mask_flags[0] & MaskFlags.per_dataset:
-        return masks[0]
-
-    # use Alpha mask if available and looks like RGB, even if nodata is shadowing
-    elif src.count == 4 and src.colorinterp(1) == ColorInterp.red:
-        return masks[3]
-
-    # Or use the binary OR intersection of all GDALGetMaskBands
-    else:
-        mask = masks[0]
-        for i in range(1, src.count):
-            mask = mask | masks[i]
-        return mask
-
-
 def reshape_as_image(arr):
     """raster order (bands, rows, cols) -> image (rows, cols, bands)
 
@@ -106,3 +84,20 @@ def raster_to_image(raster):
     with rasterio.open(raster) as src:
         arr = src.read(masked=True)
     return reshape_as_image(cs_forward(arr, 'RGB'))
+
+
+def read_mask(dataset):
+    """Get the dataset's mask
+
+    Returns
+    -------
+    numpy.array
+
+    Notes
+    -----
+    This function is no longer called by module code but we're going to
+    continue to test it for a few future versions as insurance on the new
+    implementation.
+
+    """
+    return dataset.dataset_mask()
