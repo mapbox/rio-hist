@@ -1,6 +1,9 @@
-import numpy as np
-import rasterio
 from affine import Affine
+import numpy as np
+import pytest
+import rasterio
+from rasterio.errors import NodataShadowWarning
+
 from rio_hist.utils import read_mask
 
 
@@ -115,17 +118,22 @@ def test_no_ndv():
     with rasterio.open('/tmp/rgb_no_ndv.tif') as src:
         assert np.array_equal(read_mask(src), alldata)
 
+
 def test_rgb_ndv():
     with rasterio.open('/tmp/rgb_ndv.tif') as src:
         assert np.array_equal(read_mask(src), alp)
+
 
 def test_rgba_no_ndv():
     with rasterio.open('/tmp/rgba_no_ndv.tif') as src:
         assert np.array_equal(read_mask(src), alp)
 
+
 def test_rgba_ndv():
     with rasterio.open('/tmp/rgba_ndv.tif') as src:
-        assert np.array_equal(read_mask(src), alp)
+        with pytest.warns(NodataShadowWarning):
+            assert np.array_equal(read_mask(src), alp)
+
 
 def test_rgb_msk():
     with rasterio.open('/tmp/rgb_msk.tif') as src:
@@ -134,9 +142,11 @@ def test_rgb_msk():
         for bmask in src.read_masks():
             assert np.array_equal(bmask, msk)
 
+
 def test_rgb_msk_int():
     with rasterio.open('/tmp/rgb_msk_internal.tif') as src:
         assert np.array_equal(read_mask(src), msk)
+
 
 def test_rgba_msk():
     with rasterio.open('/tmp/rgba_msk.tif') as src:

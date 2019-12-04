@@ -1,7 +1,5 @@
 import os
-import sys
 from setuptools import setup, find_packages
-from setuptools.extension import Extension
 
 # Parse the version from the fiona module.
 with open('rio_hist/__init__.py') as f:
@@ -20,6 +18,7 @@ See https://github.com/mapbox/rio-hist for docs."""
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
 setup(name='rio-hist',
       version=version,
       description=u"Histogram matching plugin for rasterio",
@@ -33,7 +32,7 @@ setup(name='rio-hist',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
-      install_requires=["click", "rasterio", "rio_color>=0.4"],
+      install_requires=["click", "rasterio~=1.0", "rio_color>=0.4"],
       extras_require={
           'plot': ['matplotlib'],
           'test': ['pytest', 'pytest-cov', 'codecov']},

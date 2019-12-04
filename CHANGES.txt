@@ -1,5 +1,11 @@
 CHANGES
 
+1.0.0 (2019-12-04)
+------------------
+- Rasterio's NodataShadowWarning is handled in the mask reading tests.
+- Unused imports were removed from the setup script.
+- Rasterio version ~= 1.0 is specified in the setup requirements.
+
 1.0b1 (2019-12-03)
 ------------------
 - This module now relies on a rasterio dataset's dataset_mask method. The
