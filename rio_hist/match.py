@@ -37,6 +37,15 @@ def histogram_match(source, reference, match_proportion=1.0):
     else:
         logger.debug("ref is unmasked, raveling")
         reference = reference.ravel()
+    
+    # if user inputs source array with masked nodata val of 0,
+    # machine epsilon will create multiple nodata vals and
+    # mess up our subsequent mask_index system. To circumvent this,
+    # replace all masked source values with nan
+    if np.ma.is_masked(source):
+        logger.debug("source is masked; replacing mask vals with nan")
+        source = np.ma.masked_array(np.where(source.mask,np.nan,source),
+                                    mask=source.mask)
 
     # get the set of unique pixel values
     # and their corresponding indices and counts
