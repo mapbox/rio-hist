@@ -26,7 +26,8 @@ def reshape_as_raster(arr):
 def cs_forward(arr, cs='rgb'):
     """ RGB (any dtype) to whatevs
     """
-    arrnorm_raw = arr.astype('float64') / np.iinfo(arr.dtype).max
+    info = np.finfo if 'f' in arr.dtype.str else np.iinfo
+    arrnorm_raw = arr.astype('float64') / info(arr.dtype).max
     arrnorm = arrnorm_raw[0:3]
     cs = cs.lower()
     if cs == 'rgb':
